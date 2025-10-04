@@ -1,40 +1,54 @@
+// tree_logicalizer_core/src/lib.rs
+
 use wasm_bindgen::prelude::*;
 
 // 内部モジュールの宣言
 pub mod parser;
-// pub mod resolver; // Day 2以降
-// pub mod simulation; // Day 2以降
+pub mod simulation; 
+// pub mod utils; // Day 3でエラー処理などのために使用
 
 /// Wasmに公開するシミュレータクラス
 #[wasm_bindgen]
 pub struct CircuitSimulator {
-    // ... 内部状態はDay 2以降で定義
-    dsl_code: String,
+    graph: simulation::SimGraph,
+    state: simulation::SimState,
+}
+
+/// シミュレーション結果を返すための最小構造体
+#[wasm_bindgen]
+#[derive(Debug)]
+pub struct SimResult {
+    #[wasm_bindgen(readonly)]
+    pub success: bool,
+    #[wasm_bindgen(readonly)]
+    #[wasm_bindgen(getter)]
+    log: String,
 }
 
 #[wasm_bindgen]
 impl CircuitSimulator {
-    // Day 1: とりあえずコードを受け取るだけの最小実装
+    // Day 2: 拡張されたパースを行い、SimGraphを初期化する
     #[wasm_bindgen(constructor)]
     pub fn new(dsl_code: String) -> Result<CircuitSimulator, JsValue> {
-        // Day 1の目標: ここで最小限のパースを行い、成功確認をする
-        match parser::parse_module_def(&dsl_code) {
-            Ok(_) => {
-                // パース成功
-                Ok(CircuitSimulator { dsl_code })
-            }
-            Err(e) => {
-                // パースエラーをJsValueとして返す
-                let err_msg = format!("Parsing Error: {:?}", e);
-                Err(JsValue::from_str(&err_msg))
-            }
-        }
+        // 1. パース: DSL -> AST
+        let (_, ast) = parser::parse_dsl(&dsl_code)
+            .map_err(|e| JsValue::from_str(&format!("Parsing Error: {:?}", e)))?;
+        
+        // 2. グラフ構築 (Day 3で実装されるロジック)
+        // ここではまだresolverがないため、仮のSimGraphとSimStateを生成
+        let graph = simulation::SimGraph::from_ast(ast); 
+        let state = simulation::SimState::new();
+
+        Ok(CircuitSimulator { graph, state })
     }
 
-    // Day 1: テスト用のHello World関数
-    pub fn greet(&self) -> String {
-        format!("Hello from Rust! DSL code length: {}", self.dsl_code.len())
+    // Day 2: 成功確認のためのテストメソッドを更新
+    pub fn get_info(&self) -> String {
+        format!("Module definitions parsed: {}", self.graph.module_defs.len())
     }
 
-    // ... 他のメソッド (step_manual, get_viewer_dataなど) はDay 2以降に実装
+    // Day 3以降で step_manual, run_cycles などを実装
+    pub fn step_manual(&mut self, _inputs_json: &str) -> SimResult {
+        SimResult { success: false, log: "Not implemented yet.".to_string() }
+    }
 }

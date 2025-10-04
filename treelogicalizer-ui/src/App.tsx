@@ -1,22 +1,28 @@
 // treelogicalizer-ui/src/App.tsx
 import { useState, useEffect } from 'react';
-// Wasmモジュールをインポート
 import init, { CircuitSimulator } from './wasm/tree_logicalizer_core';
 
 function App() {
   const [output, setOutput] = useState('Initializing Wasm...');
-  const dslCode = 'module MyFirstCircuit {}'; // テスト用の最小DSL
+  
+  // Day 2 テスト用の拡張DSL
+  const dslCode = `
+    module FullAdder(In A, In B, In Cin, Out Sum, Out Cout) {}
+    module GenericAdder<N>(In A[N], In B[N], Out S[N]) {
+        wire clk;
+        bus Carry[N];
+        bus Data[16];
+    }
+  `;
 
   useEffect(() => {
     init()
       .then(() => {
         try {
-          // 最小のDSLでCircuitSimulatorを初期化
+          // 拡張DSLでCircuitSimulatorを初期化
           const simulator = new CircuitSimulator(dslCode);
-          setOutput(simulator.greet()); // Wasmのgreet関数を呼び出し
-          // 実際のインスタンスを状態に保持すべきだが、Day 1は確認まで
+          setOutput(simulator.get_info()); // 新しいget_infoを呼び出し
         } catch (error) {
-          // パースエラーなどがここでキャッチされる
           setOutput(`Initialization Error: ${error}`);
           console.error(error);
         }
@@ -29,10 +35,10 @@ function App() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>TreeLogicalizer Day 1</h1>
-      <p>DSL Code: <code>{dslCode}</code></p>
+      <h1>TreeLogicalizer Day 2</h1>
       <p>Wasm Output: <strong>{output}</strong></p>
-      {/* Day 2以降でCodeEditorとCircuitViewerを配置 */}
+      {/* DSLエディタの代わり */}
+      <pre style={{ border: '1px solid #ccc', padding: '10px' }}>{dslCode}</pre>
     </div>
   );
 }
