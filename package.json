@@ -1,0 +1,6 @@
+{
+  "script": {
+    "build": "cd tree_logicalizer_core && wasm-pack build --target web --out-dir ../treelogicalizer-ui/src/wasm && cd ../treelogicalizer-ui && npm run build",
+    "dev": "cd ./treelogicalizer-ui && npm run dev"
+  }
+}

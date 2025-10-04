@@ -1,0 +1,13 @@
+[package]
+name = "tree_logicalizer_core"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.4"
+nom = "7.1"  # パーサーコンビネータとして採用
